@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DealHunter OSINT | منصة صيد الصفقات والسيارات</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Cairo & JetBrains Mono) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        osint: {
+                            bg: '#0a0d14',
+                            card: '#121824',
+                            border: '#1e293b',
+                            accent: '#eab308', // Yellow
+                            neon: '#10b981',   // Green
+                            purple: '#8b5cf6', // Instagram / Social
+                            darker: '#06080d'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0a0d14;
+            color: #f3f4f6;
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glow-yellow {
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.15);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0d14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #eab308;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-osint-accent selection:text-black">
+
+    <!-- Navbar -->
+    <header class="border-b border-osint-border bg-osint-darker/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-osint-accent/10 border border-osint-accent/30 flex items-center justify-center text-osint-accent text-xl font-bold">
+                    <i class="fa-solid font-mono fa-crosshairs"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl tracking-wide flex items-center gap-2">
+                        <span>DEALHUNTER</span>
+                        <span class="text-xs px-2 py-0.5 rounded bg-osint-accent text-black font-extrabold code-font">OSINT</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">أداة استطلاع وتحليل الصفقات والسيارات المستعملة عبر الإنترنت</p>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-gray-300">
+                <a href="#simulator" class="hover:text-osint-accent transition-colors"><i class="fa-solid fa-radar text-osint-accent ml-1"></i> المحاكي الحي</a>
+                <a href="#dork-gen" class="hover:text-osint-accent transition-colors"><i class="fa-solid fa-terminal text-osint-accent ml-1"></i> مولد Dorks</a>
+                <a href="#architecture" class="hover:text-osint-accent transition-colors"><i class="fa-solid fa-sitemap text-osint-accent ml-1"></i> الهيكلية</a>
+                <a href="#timeline" class="hover:text-osint-accent transition-colors"><i class="fa-solid fa-list-check text-osint-accent ml-1"></i> خطة العمل</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400 hidden sm:inline"><i class="fa-solid fa-shield-halved text-osint-neon ml-1"></i> Passive OSINT</span>
+                <a href="#simulator" class="bg-osint-accent hover:bg-yellow-400 text-black font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-lg shadow-osint-accent/20">
+                    جرب المحاكي
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16 flex-grow w-full">
+
+        <!-- Hero Section -->
+        <section class="text-center space-y-6 max-w-4xl mx-auto pt-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-osint-card border border-osint-border text-xs text-osint-accent mb-2">
+                <span class="w-2 h-2 rounded-full bg-osint-accent animate-ping"></span>
+                <span>مشروع أداة الاستطلاع المفتوح المصدر (OSINT Project)</span>
+            </div>
+            <h2 class="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                أتمتة اكتشاف صفقات <span class="text-osint-accent underline decoration-osint-accent/40 decoration-wavy">السيارات والإلكترونيات</span> بسعر لقطة
+            </h2>
+            <p class="text-gray-400 text-base sm:text-lg leading-relaxed max-w-3xl mx-auto">
+                أداة متخصصة تُحاكي مسح الإعلانات والبوستات عبر المنصات، وتوليد **Google Dorks دقيقة ومخصصة للسيارات والسلع** للوصول للنتائج المفهرسة فوراً بالسعر التقريبي المستهدف.
+            </p>
+        </section>
+
+        <!-- Live Simulator Section -->
+        <section id="simulator" class="space-y-6 scroll-mt-24">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-osint-border pb-4">
+                <div>
+                    <h3 class="text-2xl font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-microchip text-osint-accent"></i>
+                        <span>المحاكي الحي للفحص والكشط المباشر</span>
+                    </h3>
+                    <p class="text-sm text-gray-400 mt-1">أدخل اسم المركبة/السلعة والسعر المستهدف، وسيتم توليد استعلامات قوقل مخصصة لمطابقة الإعلانات</p>
+                </div>
+                
+                <!-- Currency Selector -->
+                <div class="flex items-center gap-2 bg-osint-card border border-osint-border p-1.5 rounded-xl self-start md:self-auto">
+                    <span class="text-xs text-gray-400 px-2 font-semibold">عملة العرض:</span>
+                    <button type="button" onclick="setCurrency('BHD')" id="btn-bhd" class="px-3 py-1 rounded-lg text-xs font-bold transition-all bg-osint-accent text-black">
+                        دينار بحريني (د.ب)
+                    </button>
+                    <button type="button" onclick="setCurrency('USD')" id="btn-usd" class="px-3 py-1 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white">
+                        دولار أمريكي ($)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Form Inputs -->
+                <div class="lg:col-span-5 bg-osint-card border border-osint-border rounded-2xl p-6 space-y-5 glow-yellow">
+                    <h4 class="font-bold text-lg border-b border-osint-border pb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-sliders text-osint-accent ml-2"></i>مدخلات البحث والاستطلاع</span>
+                        <span class="text-xs text-gray-500 font-normal">تحديد دقيق للمواتر والسلع</span>
+                    </h4>
+
+                    <form id="sim-form" onsubmit="runSimulation(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">اسم السلعة / السيارة (Target Item / Vehicle Name) <span class="text-red-400">*</span></label>
+                            <input type="text" id="item-name" placeholder="مثال: Toyota Supra 2020 أو Nissan 370z أو iPhone 13 Pro" required class="w-full bg-osint-bg border border-osint-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-osint-accent transition-colors">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">السعر التقريبي المستهدف <span class="curr-label text-osint-accent font-mono">(د.ب)</span> <span class="text-red-400">*</span></label>
+                            <input type="number" step="any" id="target-price" placeholder="مثال: 12000" required class="w-full bg-osint-bg border border-osint-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-osint-accent transition-colors">
+                        </div>
+
+                        <!-- Platforms Select -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-2">منصات ومواقع الإعلانات المستهدفة:</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-osint-bg border border-osint-border text-xs cursor-pointer hover:border-osint-accent">
+                                    <input type="checkbox" name="platforms" value="cars_instagram" checked class="rounded accent-osint-accent">
+                                    <i class="fa-brands fa-instagram text-pink-500"></i> انستغرام مواتر
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-osint-bg border border-osint-border text-xs cursor-pointer hover:border-osint-accent">
+                                    <input type="checkbox" name="platforms" value="opensooq" checked class="rounded accent-osint-accent">
+                                    <i class="fa-solid fa-car text-emerald-400"></i> السوق المفتوح
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-osint-bg border border-osint-border text-xs cursor-pointer hover:border-osint-accent">
+                                    <input type="checkbox" name="platforms" value="haraj" checked class="rounded accent-osint-accent">
+                                    <i class="fa-solid fa-tags text-yellow-500"></i> حراج وسوق السيارات
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-osint-bg border border-osint-border text-xs cursor-pointer hover:border-osint-accent">
+                                    <input type="checkbox" name="platforms" value="facebook" class="rounded accent-osint-accent">
+                                    <i class="fa-brands fa-facebook text-blue-500"></i> فيسبوك
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-osint-bg border border-osint-border text-xs cursor-pointer hover:border-osint-accent">
+                                    <input type="checkbox" name="platforms" value="x" class="rounded accent-osint-accent">
+                                    <i class="fa-brands fa-x-twitter text-white"></i> منصة X
+                                </label>
+                                <label class="flex items-center gap-2 p-2 rounded-lg bg-osint-bg border border-osint-border text-xs cursor-pointer hover:border-osint-accent">
+                                    <input type="checkbox" name="platforms" value="global" class="rounded accent-osint-accent">
+                                    <i class="fa-solid fa-globe text-cyan-400"></i> بحث قوقل الشامل
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" id="btn-submit" class="w-full bg-osint-accent hover:bg-yellow-400 text-black font-bold py-3 rounded-xl transition-all shadow-lg shadow-osint-accent/20 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass font-bold"></i>
+                                <span>توليد نتائج Dorks الدقيقة للمواتر والسلع</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Simulation Output & Results -->
+                <div class="lg:col-span-7 flex flex-col space-y-4">
+                    <!-- Live Scanning Terminal Log -->
+                    <div class="bg-osint-card border border-osint-border rounded-2xl p-4 code-font text-xs space-y-2 h-44 overflow-y-auto" id="terminal-box">
+                        <div class="flex items-center justify-between text-gray-500 border-b border-osint-border pb-2">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-terminal text-osint-accent"></i> سجل محاكاة محرك الكشط (Scraper Console)</span>
+                            <span class="w-2 h-2 rounded-full bg-osint-neon"></span>
+                        </div>
+                        <div id="terminal-content" class="space-y-1 text-gray-400">
+                            <p class="text-gray-500">في انتظار إدخال البيانات والضغط على زر الفحص للبدء...</p>
+                        </div>
+                    </div>
+
+                    <!-- Deals Results Cards Container -->
+                    <div class="flex-grow bg-osint-card border border-osint-border rounded-2xl p-6 flex flex-col justify-between" id="results-container">
+                        <div id="results-placeholder" class="text-center py-12 space-y-3 my-auto">
+                            <div class="w-16 h-16 rounded-full bg-osint-bg border border-osint-border flex items-center justify-center mx-auto text-gray-600 text-2xl">
+                                <i class="fa-solid fa-car-side"></i>
+                            </div>
+                            <h5 class="font-bold text-gray-300">لا توجد نتائج معروضة حالياً</h5>
+                            <p class="text-xs text-gray-500 max-w-sm mx-auto">أدخل الموتر أو السلعة والسعر التقريبي المستهدف في القائمة الجانبية لتوليد أوامر قوقل الدقيقة التي تظهر النتائج بالسعر المناسب.</p>
+                        </div>
+
+                        <div id="results-active" class="hidden space-y-4">
+                            <div class="flex items-center justify-between border-b border-osint-border pb-3">
+                                <h5 class="font-bold text-sm text-gray-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-fire text-osint-accent"></i>
+                                    <span>روابط نتائج قوقل الدقيقة للسيارات والسلع</span>
+                                </h5>
+                                <span id="deals-count" class="text-xs bg-osint-neon/20 text-osint-neon border border-osint-neon/30 px-2.5 py-0.5 rounded-full font-bold">0 استعلامات</span>
+                            </div>
+
+                            <div id="deals-list" class="space-y-3">
+                                <!-- Dynamic Deal Cards will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dork Query Generator Section -->
+        <section id="dork-gen" class="bg-osint-card border border-osint-border rounded-2xl p-6 md:p-8 space-y-6 scroll-mt-24">
+            <div>
+                <h3 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-code text-osint-accent"></i>
+                    <span>مولد استعلامات Google Dorks المخصص للسيارات (Car Dork Engine)</span>
+                </h3>
+                <p class="text-sm text-gray-400 mt-1">أوامر بحث قوقل المتقدمة المصممة خصيصاً لإعلانات السيارات والمواتر المستعملة</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-osint-bg border border-osint-border rounded-xl p-4 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-osint-accent flex items-center gap-1.5">
+                            <i class="fa-solid fa-car text-pink-500"></i> Dork استهداف بوستات السيارات (انستغرام)
+                        </span>
+                        <button onclick="copyDork('dork-1')" class="text-xs text-gray-400 hover:text-white bg-osint-card border border-osint-border px-2 py-1 rounded">
+                            <i class="fa-solid fa-copy ml-1"></i>نسخ
+                        </button>
+                    </div>
+                    <code id="dork-1" class="block text-xs text-gray-300 code-font break-all bg-osint-darker p-2.5 rounded border border-osint-border/50">
+                        site:instagram.com/p/ "للبيع" OR "موديل" OR "للبدل" OR "بدون حوادث"
+                    </code>
+                </div>
+
+                <div class="bg-osint-bg border border-osint-border rounded-xl p-4 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-osint-accent flex items-center gap-1.5">
+                            <i class="fa-solid fa-warehouse text-emerald-400"></i> Dork حراج ومواقع السيارات المفتوحة
+                        </span>
+                        <button onclick="copyDork('dork-2')" class="text-xs text-gray-400 hover:text-white bg-osint-card border border-osint-border px-2 py-1 rounded">
+                            <i class="fa-solid fa-copy ml-1"></i>نسخ
+                        </button>
+                    </div>
+                    <code id="dork-2" class="block text-xs text-gray-300 code-font break-all bg-osint-darker p-2.5 rounded border border-osint-border/50">
+                        site:opensooq.com OR site:haraj.com.sa "للبيع" OR "السعر" OR "بداعي السفر"
+                    </code>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Architecture & Flowchart -->
+        <section id="architecture" class="space-y-6 scroll-mt-24">
+            <div class="border-b border-osint-border pb-4">
+                <h3 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-sitemap text-osint-accent"></i>
+                    <span>مخطط تدفق النظام وتقنيات المشروع (System Flowchart & Tech Stack)</span>
+                </h3>
+                <p class="text-sm text-gray-400 mt-1">كيف تعمل أداة DealHunter OSINT من المدخلات حتى قائمة نتائج Google Dorks</p>
+            </div>
+
+            <!-- Flowchart Steps -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-center">
+                <div class="bg-osint-card border border-osint-border p-4 rounded-xl space-y-2 relative">
+                    <div class="w-8 h-8 rounded-full bg-osint-accent/10 border border-osint-accent text-osint-accent font-bold text-xs flex items-center justify-center mx-auto">1</div>
+                    <h5 class="font-bold text-sm text-white">مدخلات المستخدم</h5>
+                    <p class="text-xs text-gray-400">اسم الموتر/السلعة والسعر التقريبي المستهدف</p>
+                </div>
+
+                <div class="bg-osint-card border border-osint-border p-4 rounded-xl space-y-2">
+                    <div class="w-8 h-8 rounded-full bg-osint-accent/10 border border-osint-accent text-osint-accent font-bold text-xs flex items-center justify-center mx-auto">2</div>
+                    <h5 class="font-bold text-sm text-white">توليد Dork Engine</h5>
+                    <p class="text-xs text-gray-400">صياغة أوامر قوقل متخصصة بالسيارات والإعلانات</p>
+                </div>
+
+                <div class="bg-osint-card border border-osint-border p-4 rounded-xl space-y-2">
+                    <div class="w-8 h-8 rounded-full bg-osint-accent/10 border border-osint-accent text-osint-accent font-bold text-xs flex items-center justify-center mx-auto">3</div>
+                    <h5 class="font-bold text-sm text-white">الكشط (BeautifulSoup)</h5>
+                    <p class="text-xs text-gray-400">استخراج أسعار الإعلانات، العناوين، ومعرفات البوستات</p>
+                </div>
+
+                <div class="bg-osint-card border border-osint-border p-4 rounded-xl space-y-2">
+                    <div class="w-8 h-8 rounded-full bg-osint-accent/10 border border-osint-accent text-osint-accent font-bold text-xs flex items-center justify-center mx-auto">4</div>
+                    <h5 class="font-bold text-sm text-white">التحليل الحسابي (Pandas)</h5>
+                    <p class="text-xs text-gray-400">مقارنة الأسعار المفهرسة بالسعر المستهدف</p>
+                </div>
+
+                <div class="bg-osint-card border border-osint-border p-4 rounded-xl space-y-2">
+                    <div class="w-8 h-8 rounded-full bg-osint-neon/20 border border-osint-neon text-osint-neon font-bold text-xs flex items-center justify-center mx-auto">5</div>
+                    <h5 class="font-bold text-sm text-white">نتائج Dorks الحية</h5>
+                    <p class="text-xs text-gray-400">نقل المستخدم المباشر لقائمة نتائج Google المفهرسة</p>
+                </div>
+            </div>
+
+            <!-- Tech Libraries Used -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div class="bg-osint-card border border-osint-border p-5 rounded-xl flex items-start gap-4">
+                    <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg text-2xl"><i class="fa-brands fa-python"></i></div>
+                    <div>
+                        <h5 class="font-bold text-sm">Python 3.x</h5>
+                        <p class="text-xs text-gray-400 mt-1">البيئة البرمجية الأساسية لتشغيل السكربت والربط بين المحركات.</p>
+                    </div>
+                </div>
+
+                <div class="bg-osint-card border border-osint-border p-5 rounded-xl flex items-start gap-4">
+                    <div class="p-3 bg-yellow-500/10 text-yellow-400 rounded-lg text-2xl"><i class="fa-solid fa-code"></i></div>
+                    <div>
+                        <h5 class="font-bold text-sm">BeautifulSoup4</h5>
+                        <p class="text-xs text-gray-400 mt-1">مكتبة تحليل صفحات HTML واستخراج بيانات المنشورات والأسعار.</p>
+                    </div>
+                </div>
+
+                <div class="bg-osint-card border border-osint-border p-5 rounded-xl flex items-start gap-4">
+                    <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg text-2xl"><i class="fa-solid fa-table"></i></div>
+                    <div>
+                        <h5 class="font-bold text-sm">Pandas Data Library</h5>
+                        <p class="text-xs text-gray-400 mt-1">معالجة البيانات الجداولية، حساب المتوسطات، وتصفية الصفقات.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Development Plan & Timeline -->
+        <section id="timeline" class="space-y-6 scroll-mt-24">
+            <div class="border-b border-osint-border pb-4">
+                <h3 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-osint-accent"></i>
+                    <span>خطة التطوير والمراحل الزمنية (Development Plan & Milestones)</span>
+                </h3>
+                <p class="text-sm text-gray-400 mt-1">المخطط الزمني لمراحل بناء السكربت واختباره على مدار 4 أسابيع</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-osint-card border border-osint-border rounded-xl p-5 space-y-3 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-1 h-full bg-osint-accent"></div>
+                    <span class="text-xs font-bold text-osint-accent code-font">الأسبوع 1</span>
+                    <h5 class="font-bold text-sm text-white">الإعداد وصياغة الاستعلامات</h5>
+                    <p class="text-xs text-gray-400 leading-relaxed">تهيئة بيئة Python واختبار نماذج Google Dorks للوصول لبوستات انستغرام والمواقع.</p>
+                </div>
+
+                <div class="bg-osint-card border border-osint-border rounded-xl p-5 space-y-3 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-1 h-full bg-blue-500"></div>
+                    <span class="text-xs font-bold text-blue-400 code-font">الأسبوع 2</span>
+                    <h5 class="font-bold text-sm text-white">مُحرك الكشط (Scraper)</h5>
+                    <p class="text-xs text-gray-400 leading-relaxed">تطوير سكربتات BeautifulSoup لاستخراج الأسعار والعناوين ومعرفات البوستات المباشرة.</p>
+                </div>
+
+                <div class="bg-osint-card border border-osint-border rounded-xl p-5 space-y-3 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-1 h-full bg-purple-500"></div>
+                    <span class="text-xs font-bold text-purple-400 code-font">الأسبوع 3</span>
+                    <h5 class="font-bold text-sm text-white">منطق معالجة البيانات</h5>
+                    <p class="text-xs text-gray-400 leading-relaxed">تطبيق مكتبة Pandas للتحقق من تطابق الأسعار المستهدفة وتصفية الصفقات.</p>
+                </div>
+
+                <div class="bg-osint-card border border-osint-border rounded-xl p-5 space-y-3 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-1 h-full bg-osint-neon"></div>
+                    <span class="text-xs font-bold text-osint-neon code-font">الأسبوع 4</span>
+                    <h5 class="font-bold text-sm text-white">الاختبار والتوثيق</h5>
+                    <p class="text-xs text-gray-400 leading-relaxed">دمج الأجزاء، إجراء اختبارات حية على عينات مختلفة، وتجهيز التوثيق النهائي.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Responsible Use & Privacy -->
+        <section class="bg-osint-card/50 border border-osint-border rounded-2xl p-6 space-y-4">
+            <h4 class="font-bold text-base text-gray-200 flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-osint-neon"></i>
+                <span>الاستخدام المسؤول وحماية البيانات (Responsible Use of Data)</span>
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-gray-400">
+                <div class="bg-osint-bg p-3.5 rounded-xl border border-osint-border/60">
+                    <span class="font-bold text-white block mb-1">استطلاع إيجابي فقط (Passive OSINT)</span>
+                    يعتمد السكربت حصراً على البيانات العامة المفهرسة ولا يتخطى جدران الحماية أو تسجيل الدخول.
+                </div>
+                <div class="bg-osint-bg p-3.5 rounded-xl border border-osint-border/60">
+                    <span class="font-bold text-white block mb-1">حماية الخصوصية</span>
+                    لا يتم جمع أو تخزين أي معلومات شخصية (PII) أو أرقام هواتف البائعين، بل روابط المنشورات والأسعار فقط.
+                </div>
+                <div class="bg-osint-bg p-3.5 rounded-xl border border-osint-border/60">
+                    <span class="font-bold text-white block mb-1">تحديد معدل الطلبات (Rate Limiting)</span>
+                    إرسال الطلبات بفواصل زمنية مدروسة لاحترام خوادم المنصات وتجنب الحظر.
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-osint-border bg-osint-darker py-6 text-center text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p>© 2026 DealHunter OSINT Project — أداة استطلاع الصفقات عبر الإنترنت</p>
+            <p class="code-font text-gray-400">تطوير الأكواد المفتوحة | Python 3.x & OSINT Framework</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Currency State
+        let currentCurrency = 'BHD';
+        const currencySymbols = {
+            'BHD': 'د.ب',
+            'USD': '$'
+        };
+
+        function setCurrency(curr) {
+            currentCurrency = curr;
+            const btnBhd = document.getElementById('btn-bhd');
+            const btnUsd = document.getElementById('btn-usd');
+            const currLabels = document.querySelectorAll('.curr-label');
+
+            if (curr === 'BHD') {
+                btnBhd.className = "px-3 py-1 rounded-lg text-xs font-bold transition-all bg-osint-accent text-black";
+                btnUsd.className = "px-3 py-1 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white";
+                currLabels.forEach(el => el.textContent = '(د.ب)');
+            } else {
+                btnUsd.className = "px-3 py-1 rounded-lg text-xs font-bold transition-all bg-osint-accent text-black";
+                btnBhd.className = "px-3 py-1 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white";
+                currLabels.forEach(el => el.textContent = '($)');
+            }
+
+            // Update generated Dorks input if exists
+            const itemName = document.getElementById('item-name').value;
+            if(itemName) updateDorks(itemName);
+        }
+
+        function updateDorks(item) {
+            const sym = currencySymbols[currentCurrency];
+            document.getElementById('dork-1').textContent = `site:instagram.com/p/ "${item}" ("للبيع" OR "موديل" OR "للبدل") "${sym}"`;
+            document.getElementById('dork-2').textContent = `site:opensooq.com OR site:haraj.com.sa "${item}" ("للبيع" OR "السعر") "${sym}"`;
+        }
+
+        // Live Simulation Execution
+        function runSimulation(e) {
+            e.preventDefault();
+
+            const item = document.getElementById('item-name').value.trim();
+            const targetPrice = parseFloat(document.getElementById('target-price').value);
+            
+            // Selected Platforms
+            const selectedPlatforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked')).map(cb => cb.value);
+
+            if(!item || isNaN(targetPrice)) {
+                alert('يرجى إدخال جميع المدخلات بشكل صحيح.');
+                return;
+            }
+
+            if(selectedPlatforms.length === 0) {
+                alert('يرجى اختيار منصة واحدة على الأقل للبحث فيها.');
+                return;
+            }
+
+            updateDorks(item);
+
+            const termContent = document.getElementById('terminal-content');
+            const resultsPlaceholder = document.getElementById('results-placeholder');
+            const resultsActive = document.getElementById('results-active');
+            const dealsList = document.getElementById('deals-list');
+            const dealsCount = document.getElementById('deals-count');
+
+            // Reset Terminal Output
+            termContent.innerHTML = '';
+            
+            const logStep = (msg, colorClass = "text-gray-300") => {
+                const p = document.createElement('p');
+                p.className = `${colorClass} flex items-center gap-2`;
+                p.innerHTML = `<span class="text-osint-accent font-bold">&gt;</span> <span>${msg}</span>`;
+                termContent.appendChild(p);
+                document.getElementById('terminal-box').scrollTop = document.getElementById('terminal-box').scrollHeight;
+            };
+
+            logStep(`تطوير استعلامات Google Dorks المخصصة للسيارة/السلعة: "${item}"...`);
+            
+            setTimeout(() => {
+                logStep(`تحديد السعر المستهدف: ${targetPrice} ${currencySymbols[currentCurrency]} عبر المنصات: [ ${selectedPlatforms.join(', ')} ]...`, "text-blue-400");
+            }, 400);
+
+            setTimeout(() => {
+                logStep(`بناء الكلمات المفتاحية التخصصية (موديل، للبيع، نظيف، السعر) لضمان دقة نتائج قوقل...`, "text-yellow-400");
+            }, 800);
+
+            setTimeout(() => {
+                logStep(`تجميع روابط البحث المفهرسة ومطابقة النطاق السعري المطلوب...`, "text-purple-400");
+            }, 1200);
+
+            setTimeout(() => {
+                logStep(`تم تجهيز روابط Google Dorks المباشرة بنجاح! يمكنك الآن فتح نتائج قوقل مباشرة.`, "text-osint-neon font-bold");
+
+                // Generate Mock Deals with Real Google Dorks Search URLs
+                const mockDeals = createMockDeals(item, targetPrice, selectedPlatforms);
+                
+                dealsList.innerHTML = '';
+                mockDeals.forEach(deal => {
+                    dealsList.appendChild(renderDealCard(deal));
+                });
+
+                dealsCount.textContent = `${mockDeals.length} استعلامات جاهزة`;
+                resultsPlaceholder.classList.add('hidden');
+                resultsActive.classList.remove('hidden');
+
+            }, 1600);
+        }
+
+        // Mock Deal Generator with Specialized Vehicle Google Dork Search URLs
+        function createMockDeals(item, targetPrice, platforms) {
+            const deals = [];
+            const sym = currencySymbols[currentCurrency];
+
+            // Specialized Platform Configs & Google Dork Search URL Generators
+            const platformDetails = {
+                'cars_instagram': {
+                    name: 'انستغرام مواتر (Instagram Cars)',
+                    icon: 'fa-brands fa-instagram text-pink-500',
+                    getGoogleDorkUrl: (queryItem, price) => {
+                        const dork = `site:instagram.com/p/ "${queryItem}" ("للبيع" OR "موديل" OR "للبدل") "${price}" OR "${sym}"`;
+                        return `https://www.google.com/search?q=${encodeURIComponent(dork)}`;
+                    }
+                },
+                'opensooq': {
+                    name: 'السوق المفتوح (OpenSooq)',
+                    icon: 'fa-solid fa-car text-emerald-400',
+                    getGoogleDorkUrl: (queryItem, price) => {
+                        const dork = `site:opensooq.com "${queryItem}" ("للبيع" OR "السعر") "${price}" OR "${sym}"`;
+                        return `https://www.google.com/search?q=${encodeURIComponent(dork)}`;
+                    }
+                },
+                'haraj': {
+                    name: 'حراج وسوق السيارات',
+                    icon: 'fa-solid fa-tags text-yellow-500',
+                    getGoogleDorkUrl: (queryItem, price) => {
+                        const dork = `site:haraj.com.sa OR site:olx.com "${queryItem}" ("للبيع" OR "السعر" OR "مطلوب") "${price}" OR "${sym}"`;
+                        return `https://www.google.com/search?q=${encodeURIComponent(dork)}`;
+                    }
+                },
+                'facebook': {
+                    name: 'فيسبوك ماركت بليس',
+                    icon: 'fa-brands fa-facebook text-blue-500',
+                    getGoogleDorkUrl: (queryItem, price) => {
+                        const dork = `site:facebook.com/marketplace/ "${queryItem}" ("للبيع" OR "مستعمل") "${price}" OR "${sym}"`;
+                        return `https://www.google.com/search?q=${encodeURIComponent(dork)}`;
+                    }
+                },
+                'x': {
+                    name: 'منصة X',
+                    icon: 'fa-brands fa-x-twitter text-white',
+                    getGoogleDorkUrl: (queryItem, price) => {
+                        const dork = `site:x.com "${queryItem}" ("للبيع" OR "سيارة" OR "موديل") "${price}" OR "${sym}"`;
+                        return `https://www.google.com/search?q=${encodeURIComponent(dork)}`;
+                    }
+                },
+                'global': {
+                    name: 'بحث قوقل الشامل لكل الإعلانات',
+                    icon: 'fa-solid fa-globe text-cyan-400',
+                    getGoogleDorkUrl: (queryItem, price) => {
+                        const dork = `"${queryItem}" ("للبيع" OR "السعر") "${price}" "${sym}"`;
+                        return `https://www.google.com/search?q=${encodeURIComponent(dork)}`;
+                    }
+                }
+            };
+
+            const chosenPlatforms = platforms.slice(0, 4);
+            
+            chosenPlatforms.forEach((pKey) => {
+                const pInfo = platformDetails[pKey] || platformDetails['cars_instagram'];
+
+                deals.push({
+                    title: `استعلام دقيق: ${item} (${pInfo.name})`,
+                    platformName: pInfo.name,
+                    platformIcon: pInfo.icon,
+                    targetPrice: targetPrice,
+                    googleSearchUrl: pInfo.getGoogleDorkUrl(item, targetPrice)
+                });
+            });
+
+            return deals;
+        }
+
+        // Render Individual Deal Card
+        function renderDealCard(deal) {
+            const div = document.createElement('div');
+            div.className = "bg-osint-bg border border-osint-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-osint-accent/50 transition-colors";
+            
+            const sym = currencySymbols[currentCurrency];
+
+            div.innerHTML = `
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-gray-300 flex items-center gap-1.5 bg-osint-card border border-osint-border px-2 py-0.5 rounded">
+                            <i class="${deal.platformIcon}"></i> ${deal.platformName}
+                        </span>
+                        <span class="text-xs text-osint-accent font-mono font-semibold">Google Dork Query</span>
+                    </div>
+                    <h6 class="font-bold text-sm text-white">${deal.title}</h6>
+                    <div class="flex items-center gap-3 text-xs text-gray-400 pt-1">
+                        <span>السعر التقريبي المستهدف: <strong class="text-osint-neon font-mono text-sm">${deal.targetPrice} ${sym}</strong></span>
+                    </div>
+                </div>
+
+                <div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 border-t sm:border-t-0 border-osint-border pt-2 sm:pt-0">
+                    <a href="${deal.googleSearchUrl}" target="_blank" class="bg-osint-accent hover:bg-yellow-400 text-black text-xs font-bold px-4 py-2.5 rounded-lg transition-all shadow-md shadow-osint-accent/10 flex items-center gap-2">
+                        <i class="fa-brands fa-google"></i>
+                        <span>عرض النتائج الحية في قوقل</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                </div>
+            `;
+            return div;
+        }
+
+        // Copy Dork Utility
+        function copyDork(elementId) {
+            const text = document.getElementById(elementId).textContent.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                alert('تم نسخ أمر Dork بنجاح إلى الحافظة!');
+            });
+        }
+    </script>
+</body>
+</html>
